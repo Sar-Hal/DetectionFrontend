@@ -56,6 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             const data = await response.json();
+            console.log("Text API Response:", data);
             displayResult(data);
         } catch (error) {
             showError('Failed to analyze text. Please try again.');
@@ -84,6 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             const data = await response.json();
+            console.log("Voice API Response:", data);
             displayResult(data);
         } catch (error) {
             showError('Failed to analyze voice. Please try again.');
@@ -112,6 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             const data = await response.json();
+            console.log("URL API Response:", data);
             displayResult(data);
         } catch (error) {
             showError('Failed to analyze URL. Please try again.');
@@ -124,30 +127,60 @@ document.addEventListener('DOMContentLoaded', function() {
     // Display result function
     function displayResult(data) {
         resultDiv.classList.remove('hidden');
-        resultContent.classList.remove('scam', 'safe');
-        resultContent.classList.add(data.scam ? 'scam' : 'safe');
-        
-        let resultHTML = `
-            <h4>${data.scam ? '⚠️ SCAM DETECTED!' : '✅ No scam detected'}</h4>
+    resultContent.classList.remove('scam', 'safe');
+    
+    const isScam = Boolean(data.scam);
+    resultContent.classList.add(isScam ? 'scam' : 'safe');
+
+    let resultHTML = `
+        <div class="status-banner ${isScam ? 'scam' : 'safe'}">
+            ${isScam ? '⚠️ SCAM DETECTED!' : '✅ No scam detected'}
+        </div>
+        <div class="analysis-summary">
+            <div class="language-pill">Language: ${data.language || 'Unknown'}</div>
+    `;
+
+    if (data.transcript) {
+        resultHTML += `<div class="transcript-box">${data.transcript}</div>`;
+    }
+
+    if (data.details && typeof data.details === 'object') {
+        resultHTML += `
+        <div class="analysis-details">
+            <div class="indicators-grid">
+                ${(data.details.scam_indicators || []).map(indicator => `
+                    <div class="indicator-card">
+                        <div class="indicator-icon">⚠️</div>
+                        <div class="indicator-text">${indicator}</div>
+                    </div>
+                `).join('')}
+            </div>
         `;
+
+        // Add detailed explanations
+        const { scam_indicators, ...explanations } = data.details;
+        resultHTML += Object.entries(explanations).map(([key, value]) => `
+            <div class="explanation-box">
+                <h4>${key.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join(' ')}</h4>
+                <p>${value}</p>
+            </div>
+        `).join('');
         
-        if (data.language) {
-            resultHTML += `<p><strong>Language:</strong> ${data.language}</p>`;
-        }
-        
-        if (data.transcript) {
-            resultHTML += `<p><strong>Transcript:</strong> ${data.transcript}</p>`;
-        }
-        
-        resultHTML += `<p><strong>Details:</strong> ${typeof data.details === 'string' ? data.details : JSON.stringify(data.details, null, 2)}</p>`;
-        
-        resultContent.innerHTML = resultHTML;
-        
+        resultHTML += `</div>`; // Close analysis-details
+    }
+
+    resultContent.innerHTML = resultHTML;
         // Handle audio alert if available
         if (data.audio) {
-            audio.src = API_URL + data.audio;
+            const audioSrc = API_URL + data.audio;
+            audio.src = audioSrc;
             audioPlayer.classList.remove('hidden');
-            audio.play().catch(err => console.error('Failed to play audio:', err));
+            
+            console.log("Playing audio from:", audioSrc);
+            audio.load();
+            audio.play().catch(err => {
+                console.error('Failed to play audio:', err);
+            });
         } else {
             audioPlayer.classList.add('hidden');
         }
