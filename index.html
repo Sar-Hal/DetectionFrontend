@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scam Detection</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Multilingual Scam Detection</h1>
+            <p>Check messages, voice recordings, and URLs for potential scams</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-target="text-section">Text</button>
+            <button class="tab-btn" data-target="voice-section">Voice</button>
+            <button class="tab-btn" data-target="url-section">URL</button>
+        </div>
+
+        <section id="text-section" class="section active">
+            <h2>Text Scan</h2>
+            <form id="text-form">
+                <textarea placeholder="Enter text to analyze for potential scams..." required></textarea>
+                <button type="submit">Analyze Text</button>
+            </form>
+        </section>
+
+        <section id="voice-section" class="section">
+            <h2>Voice Scan</h2>
+            <form id="voice-form">
+                <div class="file-input">
+                    <input type="file" id="voice-file" accept="audio/*" required>
+                    <p class="help-text">Upload an audio file (.mp3, .wav, etc.)</p>
+                </div>
+                <button type="submit">Analyze Voice</button>
+            </form>
+        </section>
+
+        <section id="url-section" class="section">
+            <h2>URL Scan</h2>
+            <form id="url-form">
+                <input type="url" placeholder="https://example.com" required>
+                <button type="submit">Analyze URL</button>
+            </form>
+        </section>
+
+        <div id="result" class="hidden">
+            <h3>Result</h3>
+            <div class="result-content"></div>
+            <div id="audio-player" class="hidden">
+                <h4>Alert Sound:</h4>
+                <audio controls></audio>
+            </div>
+        </div>
+
+        <div id="loading" class="hidden">
+            <div class="spinner"></div>
+            <p>Analyzing...</p>
+        </div>
+    </div>
+
+    <footer>
+        <p>Multilingual Scam Detection &copy; 2023</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
